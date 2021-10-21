@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Asteroids
 {
@@ -11,6 +13,8 @@ namespace Asteroids
         public float maxRotationForce = 1.5f;
         public float maxForce = 40000;
         public float minForce = 5000;
+        public float scaleMax = 10;
+        public float scaleMin = 0.5f;
         
 
 
@@ -24,6 +28,9 @@ namespace Asteroids
                 var position = spawnSphereDiameter * Random.insideUnitSphere;
                 var rotation = Random.rotation;
                 var spawnedAsteroid = Instantiate(asteroid, position, rotation, transform);
+                
+                float RandomScale() => Random.Range(scaleMin, scaleMax);
+                spawnedAsteroid.transform.localScale = new Vector3(RandomScale(), RandomScale(), RandomScale());
 
                 var rigidBody = spawnedAsteroid.GetComponent<Rigidbody>();
                 rigidBody.AddTorque(Random.onUnitSphere * Random.Range(minRotationForce, maxRotationForce), 

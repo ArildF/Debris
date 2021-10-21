@@ -13,7 +13,7 @@ namespace PlayerShip
             if (Input.GetMouseButton(0))
             {
                 var rb = GetComponent<Rigidbody>();
-                rb.AddForce(transform.forward * 100_000_000, ForceMode.Impulse);
+                rb.AddForce(transform.forward * 1_000_000, ForceMode.Impulse);
             }
         
         }
