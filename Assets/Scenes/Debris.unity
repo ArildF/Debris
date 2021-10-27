@@ -1295,7 +1295,6 @@ GameObject:
   - component: {fileID: 1609858348}
   - component: {fileID: 1609858347}
   - component: {fileID: 1609858346}
-  - component: {fileID: 1609858350}
   - component: {fileID: 1609858349}
   m_Layer: 0
   m_Name: PlayerShip
@@ -1312,11 +1311,11 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1609858345}
   serializedVersion: 2
-  m_Mass: 200000
+  m_Mass: 20000
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0.5
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -1360,104 +1359,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9c473fbe2c8abf46b240fc033e01482, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1609858350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1609858345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: e361518469364b542bd92507cbd2aab9, type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 6d7a606a-d88a-4a4b-a3df-6c4f1262da68
-    m_ActionName: Player/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 5daae6d2-6cfb-41fc-8051-dcb55e681c88
-    m_ActionName: Player/Look[/Mouse/delta,/Pen/delta]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 6b2c776e-9c81-4486-906f-1ea1d602c16e
-    m_ActionName: Player/Fire[/Mouse/leftButton]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1609858345}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 524b0e42-9d62-42c8-b7fb-f3bb26b5572e
-    m_ActionName: Player/Thrust
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 9250e260-99bc-4170-9625-2987ef5bfa43
-    m_ActionName: UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 347c2e0d-5b50-497d-b2e1-439024e2bfa2
-    m_ActionName: UI/Submit[/Keyboard/enter]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 29c142a8-2e8b-42f8-9390-5b29bf912116
-    m_ActionName: UI/Cancel[/Keyboard/escape]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e8cbfd70-84dc-4c71-889a-7362176cc6c4
-    m_ActionName: UI/Point[/Mouse/position,/Pen/position]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b6760beb-34b7-4460-9552-609a52e955c3
-    m_ActionName: UI/Click[/Mouse/leftButton,/Pen/tip]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 910f4699-04a8-4e68-bdb9-38adce761b54
-    m_ActionName: UI/ScrollWheel[/Mouse/scroll]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: cf9019b6-8aad-4f05-9eb4-f81d13c8fc7e
-    m_ActionName: UI/MiddleClick[/Mouse/middleButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: f03e1ee3-705c-427e-9531-417c302b30e0
-    m_ActionName: UI/RightClick[/Mouse/rightButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 4cf41fa6-4a48-4156-ba59-577aa136ecf7
-    m_ActionName: UI/TrackedDevicePosition
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 5b0f61e8-dd83-4c8f-b831-443be2ecf369
-    m_ActionName: UI/TrackedDeviceOrientation
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: Gamepad
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 724505289}
+  thrustAction:
+    m_Name: Thrust
+    m_Type: 1
+    m_ExpectedControlType: Button
+    m_Id: 7de23925-8250-4568-ba3f-511d90a931c8
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 24ee49db-ac6d-4e58-827f-2cdac7b9b109
+      m_Path: <Gamepad>/rightShoulder
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Thrust
+      m_Flags: 0
+    - m_Name: 
+      m_Id: 13386391-03e5-45a6-ac01-240e057b8511
+      m_Path: <Keyboard>/space
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Thrust
+      m_Flags: 0
+  reverseThrustAction:
+    m_Name: Reverse Thrust
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 6d1d25b1-cf81-4c9c-9ae8-38374978a27a
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 92ae6a38-18e6-4f0c-ae7d-8b8b86877bab
+      m_Path: <Gamepad>/leftShoulder
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Reverse Thrust
+      m_Flags: 0
+  rollAction:
+    m_Name: Roll
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: cdedfc6f-3423-4618-8b3e-e72cbfc6dd24
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: c9a40f5a-b741-4c33-9c58-950619d1c5bd
+      m_Path: <Gamepad>/leftStick
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Roll
+      m_Flags: 0
+  forwardForce: 1000000
+  reverseForce: 500000
+  lateralRollForce: 200000
 --- !u!1001 &1699962583
 PrefabInstance:
   m_ObjectHideFlags: 0
