@@ -1399,25 +1399,42 @@ MonoBehaviour:
       m_Groups: 
       m_Action: Reverse Thrust
       m_Flags: 0
-  rollAction:
-    m_Name: Roll
+  lateralRollAction:
+    m_Name: Lateral Roll
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: cdedfc6f-3423-4618-8b3e-e72cbfc6dd24
+    m_Id: 08f728e3-48e0-4bc7-a2d2-d385722fb506
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings:
     - m_Name: 
-      m_Id: c9a40f5a-b741-4c33-9c58-950619d1c5bd
-      m_Path: <Gamepad>/leftStick
+      m_Id: 9061cd0c-f56c-48b2-b7d5-8f9d25da98cf
+      m_Path: <Gamepad>/leftStick/x
       m_Interactions: 
       m_Processors: 
       m_Groups: 
-      m_Action: Roll
+      m_Action: Lateral Roll
+      m_Flags: 0
+  medialRollAction:
+    m_Name: Medial Roll
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 81873a8e-81e4-44fa-ad15-41a73b45dc25
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 613a95dd-5dfc-48b0-8328-cfeaa520f45f
+      m_Path: <Gamepad>/leftStick/y
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Medial Roll
       m_Flags: 0
   forwardForce: 1000000
   reverseForce: 500000
   lateralRollForce: 200000
+  medialRollForce: 200000
 --- !u!1001 &1699962583
 PrefabInstance:
   m_ObjectHideFlags: 0
