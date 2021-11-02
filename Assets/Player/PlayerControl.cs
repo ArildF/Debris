@@ -49,14 +49,12 @@ public class PlayerControl : MonoBehaviour
 
         if (lateralRollAction.phase == InputActionPhase.Started)
         {
-            Debug.Log("Rolling");
             var roll = lateralRollAction.ReadValue<float>();
             _rigidBody.AddRelativeTorque(0, 0, -roll * lateralRollForce);
         }
         
         if (medialRollAction.phase == InputActionPhase.Started)
         {
-            Debug.Log("Rolling");
             var roll = medialRollAction.ReadValue<float>();
             _rigidBody.AddRelativeTorque(roll * medialRollForce, 0, 0);
         }
