@@ -1,3 +1,5 @@
+using HUD;
+using UniDi;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,13 +22,23 @@ namespace Player
         public float verticalThrustForce = 100_000;
         private Rigidbody _rigidBody;
         private InputAction[] _actions;
+        private HudInfo _hudInfo;
+
+        [Inject]
+        public void Init(HudInfo hudInfo)
+        {
+            _hudInfo = hudInfo;
+        }
 
         // Start is called before the first frame update
         void Start()
         {
             _rigidBody = GetComponent<Rigidbody>();
-        
+        }
 
+        private void Update()
+        {
+            _hudInfo.AbsoluteVelocity = _rigidBody.velocity.magnitude;
         }
 
         private void OnEnable()
@@ -74,13 +86,13 @@ namespace Player
             if (lateralThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = lateralThrustAction.ReadValue<float>();
-                _rigidBody.AddForce(transform.right * thrust * lateralThrustForce, ForceMode.Impulse);
+                _rigidBody.AddForce(transform.right * (thrust * lateralThrustForce), ForceMode.Impulse);
             }
 
             if (verticalThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = verticalThrustAction.ReadValue<float>();
-                _rigidBody.AddForce(transform.up * thrust * verticalThrustForce, ForceMode.Impulse);
+                _rigidBody.AddForce(transform.up * (thrust * verticalThrustForce), ForceMode.Impulse);
 
             }
         }

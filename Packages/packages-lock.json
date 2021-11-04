@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.unidi.unidi": {
+      "version": "https://github.com/unidi/unidi.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "02d8d214ec4601fb310ca3422a4da91361f21c30"
+    },
     "com.unity.cinemachine": {
       "version": "2.6.5",
       "depth": 0,
