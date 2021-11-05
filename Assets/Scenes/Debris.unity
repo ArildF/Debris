@@ -2570,10 +2570,10 @@ MonoBehaviour:
       m_Groups: 
       m_Action: Vertical Thrust
       m_Flags: 0
-  forwardForce: 1000000
-  reverseForce: 500000
-  lateralRollForce: 200000
-  medialRollForce: 200000
+  forwardForce: 500000
+  reverseForce: 250000
+  lateralRollForce: 400000
+  medialRollForce: 400000
   lateralThrustForce: 100000
   verticalThrustForce: 100000
 --- !u!21 &1620997828
