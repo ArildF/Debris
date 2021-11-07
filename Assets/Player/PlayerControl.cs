@@ -27,11 +27,13 @@ namespace Player
         private InputAction[] _actions;
         private HudInfo _hudInfo;
         private bool _currentlyBraking;
+        private ThrustInfo _thrustInfo;
 
         [Inject]
-        public void Init(HudInfo hudInfo)
+        public void Init(HudInfo hudInfo, ThrustInfo thrustInfo)
         {
             _hudInfo = hudInfo;
+            _thrustInfo = thrustInfo;
         }
 
         // Start is called before the first frame update
@@ -66,36 +68,44 @@ namespace Player
         // Update is called once per frame
         void FixedUpdate()
         {
+            _thrustInfo.CurrentDirectionalThrust = _thrustInfo.CurrentRotationalThrust = 0;
+            
             if (thrustAction.phase == InputActionPhase.Started)
             {
+                _thrustInfo.CurrentDirectionalThrust = forwardForce;
                 _rigidBody.AddForce(transform.forward * forwardForce, ForceMode.Impulse); 
             }
             if (reverseThrustAction.phase == InputActionPhase.Started)
             {
+                _thrustInfo.CurrentDirectionalThrust = reverseForce;
                 _rigidBody.AddForce(transform.forward * -reverseForce, ForceMode.Impulse); 
             }
 
             if (lateralRollAction.phase == InputActionPhase.Started)
             {
                 var roll = lateralRollAction.ReadValue<float>();
+                _thrustInfo.CurrentRotationalThrust = roll * lateralRollForce;
                 _rigidBody.AddRelativeTorque(0, 0, -roll * lateralRollForce);
             }
         
             if (medialRollAction.phase == InputActionPhase.Started)
             {
                 var roll = medialRollAction.ReadValue<float>();
+                _thrustInfo.CurrentRotationalThrust = roll * medialRollForce;
                 _rigidBody.AddRelativeTorque(roll * medialRollForce, 0, 0);
             }
 
             if (lateralThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = lateralThrustAction.ReadValue<float>();
+                _thrustInfo.CurrentDirectionalThrust = thrust * lateralThrustForce;
                 _rigidBody.AddForce(transform.right * (thrust * lateralThrustForce), ForceMode.Impulse);
             }
 
             if (verticalThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = verticalThrustAction.ReadValue<float>();
+                _thrustInfo.CurrentDirectionalThrust = thrust * verticalThrustForce;
                 _rigidBody.AddForce(transform.up * (thrust * verticalThrustForce), ForceMode.Impulse);
             }
 
@@ -123,6 +133,7 @@ namespace Player
                 while (brakeAction.phase == InputActionPhase.Started &&
                        _rigidBody.velocity.magnitude > 50)
                 {
+                    _thrustInfo.CurrentDirectionalThrust = forwardForce;
                     _rigidBody.AddForce(transform.forward * forwardForce, ForceMode.Impulse);
                     yield return new WaitForFixedUpdate();
                 }
