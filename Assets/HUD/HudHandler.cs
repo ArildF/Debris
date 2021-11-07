@@ -13,7 +13,7 @@ namespace HUD
 
         private void Update()
         {
-            text.text = _hudInfo.AbsoluteVelocity.ToString(CultureInfo.InvariantCulture);
+            text.text = _hudInfo.AbsoluteVelocity.ToString("F0", CultureInfo.InvariantCulture);
         }
 
         [Inject]
