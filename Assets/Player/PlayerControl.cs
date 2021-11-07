@@ -1,3 +1,4 @@
+using System.Collections;
 using HUD;
 using UniDi;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Player
         public InputAction medialRollAction;
         public InputAction lateralThrustAction;
         public InputAction verticalThrustAction;
+        public InputAction brakeAction;
     
         public float forwardForce = 1_000_000;
         public float reverseForce = 500_000;
@@ -20,9 +22,11 @@ namespace Player
         public float medialRollForce = 100_000;
         public float lateralThrustForce = 100_000;
         public float verticalThrustForce = 100_000;
+        public float brakeRotationSpeed = 0.02f;
         private Rigidbody _rigidBody;
         private InputAction[] _actions;
         private HudInfo _hudInfo;
+        private bool _currentlyBraking;
 
         [Inject]
         public void Init(HudInfo hudInfo)
@@ -46,7 +50,7 @@ namespace Player
             _actions = new[]
             {
                 thrustAction, reverseThrustAction, lateralRollAction, medialRollAction, lateralThrustAction,
-                verticalThrustAction
+                verticalThrustAction, brakeAction,
             }; 
         
             foreach(var action in _actions)
@@ -93,9 +97,43 @@ namespace Player
             {
                 var thrust = verticalThrustAction.ReadValue<float>();
                 _rigidBody.AddForce(transform.up * (thrust * verticalThrustForce), ForceMode.Impulse);
+            }
 
+            if (!_currentlyBraking && brakeAction.phase == InputActionPhase.Started)
+            {
+                StartCoroutine(Brake());
             }
         }
 
+        private IEnumerator Brake()
+        {
+            _currentlyBraking = true;
+            try
+            {
+                var shipTransform = transform;
+                var velocityRotation = Quaternion.LookRotation(-_rigidBody.velocity, shipTransform.up);
+                while (brakeAction.phase == InputActionPhase.Started && 
+                       Quaternion.Angle(shipTransform.rotation, velocityRotation) > float.Epsilon)
+                {
+                    transform.rotation = Quaternion.Slerp(shipTransform.rotation, velocityRotation, Time.fixedTime * brakeRotationSpeed);
+                    yield return new WaitForFixedUpdate();
+                }
+            
+                Debug.Log("Finished rotation phase of braking");
+                while (brakeAction.phase == InputActionPhase.Started &&
+                       _rigidBody.velocity.magnitude > 50)
+                {
+                    _rigidBody.AddForce(transform.forward * forwardForce, ForceMode.Impulse);
+                    yield return new WaitForFixedUpdate();
+                }
+                
+                Debug.Log("Finished force phase of braking");
+            }
+            finally
+            {
+                _currentlyBraking = false;
+            }
+            
+        }
     }
 }
