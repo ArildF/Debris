@@ -10,7 +10,7 @@ public class MaterialManager : MonoBehaviour
     {
         var mat = GetComponent<Renderer>().material;
         var onUnitSphere = Random.onUnitSphere;
-        Debug.Log($"Setting _RandomPerInstanceVector to {onUnitSphere} for {transform.name}");
+        // Debug.Log($"Setting _RandomPerInstanceVector to {onUnitSphere} for {transform.name}");
         mat.SetVector("_RandomPerInstanceVector", onUnitSphere);
 
     }
