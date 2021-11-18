@@ -3,6 +3,7 @@ using HUD;
 using UniDi;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Mathf;
 
 namespace Player
 {
@@ -72,40 +73,42 @@ namespace Player
             
             if (thrustAction.phase == InputActionPhase.Started)
             {
-                _thrustInfo.CurrentDirectionalThrust = forwardForce;
+                _thrustInfo.CurrentDirectionalThrust = Abs(forwardForce);
                 _rigidBody.AddForce(transform.forward * forwardForce, ForceMode.Impulse); 
             }
             if (reverseThrustAction.phase == InputActionPhase.Started)
             {
-                _thrustInfo.CurrentDirectionalThrust = reverseForce;
+                _thrustInfo.CurrentDirectionalThrust = Abs(reverseForce);
                 _rigidBody.AddForce(transform.forward * -reverseForce, ForceMode.Impulse); 
             }
 
             if (lateralRollAction.phase == InputActionPhase.Started)
             {
                 var roll = lateralRollAction.ReadValue<float>();
-                _thrustInfo.CurrentRotationalThrust = roll * lateralRollForce;
+                _thrustInfo.CurrentRotationalThrust = Abs(roll * lateralRollForce);
+                // Debug.Log($"Applying {_thrustInfo.CurrentRotationalThrust} lateral roll");
                 _rigidBody.AddRelativeTorque(0, 0, -roll * lateralRollForce);
             }
         
             if (medialRollAction.phase == InputActionPhase.Started)
             {
                 var roll = medialRollAction.ReadValue<float>();
-                _thrustInfo.CurrentRotationalThrust = roll * medialRollForce;
+                _thrustInfo.CurrentRotationalThrust += Abs(roll * medialRollForce);
+                // Debug.Log($"Applying {_thrustInfo.CurrentRotationalThrust} medial roll");
                 _rigidBody.AddRelativeTorque(roll * medialRollForce, 0, 0);
             }
 
             if (lateralThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = lateralThrustAction.ReadValue<float>();
-                _thrustInfo.CurrentDirectionalThrust = thrust * lateralThrustForce;
+                _thrustInfo.CurrentDirectionalThrust = Abs(thrust * lateralThrustForce);
                 _rigidBody.AddForce(transform.right * (thrust * lateralThrustForce), ForceMode.Impulse);
             }
 
             if (verticalThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = verticalThrustAction.ReadValue<float>();
-                _thrustInfo.CurrentDirectionalThrust = thrust * verticalThrustForce;
+                _thrustInfo.CurrentDirectionalThrust = Abs(thrust * verticalThrustForce);
                 _rigidBody.AddForce(transform.up * (thrust * verticalThrustForce), ForceMode.Impulse);
             }
 
