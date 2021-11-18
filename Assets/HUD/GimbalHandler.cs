@@ -25,10 +25,11 @@ namespace HUD
             if (Vector3.Distance(_lastRigidBodyVelocity, rigidBodyVelocity) > float.Epsilon ||
                 Quaternion.Angle(_lastRotation, rotation) > float.Epsilon)
             {
-                var rigidbodyDirection = rigidBodyVelocity.normalized;
+                var rigidBodyTransform = shipRigidBody.transform;
+                var rigidbodyDirection = rigidBodyVelocity.sqrMagnitude > float.Epsilon ? rigidBodyVelocity.normalized : rigidBodyTransform.forward;
                 // Debug.Log($"Rigid body is moving {rigidbodyDirection}");
                 // Debug.Log($"Ship orientation {rotation.eulerAngles}");
-                var shipVelocityRotation = Quaternion.LookRotation(rigidbodyDirection, shipRigidBody.transform.up);
+                var shipVelocityRotation = Quaternion.LookRotation(rigidbodyDirection, rigidBodyTransform.up);
                 // Debug.Log($"Ship velocity rotation: {shipVelocityRotation.eulerAngles}");
 
                 var targetContainerRotation =
