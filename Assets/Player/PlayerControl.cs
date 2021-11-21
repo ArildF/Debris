@@ -93,7 +93,7 @@ namespace Player
             if (medialRollAction.phase == InputActionPhase.Started)
             {
                 var roll = medialRollAction.ReadValue<float>();
-                _thrustInfo.CurrentRotationalThrust += Abs(roll * medialRollForce);
+                _thrustInfo.CurrentRotationalThrust = Max(_thrustInfo.CurrentRotationalThrust, Abs(roll * medialRollForce));
                 // Debug.Log($"Applying {_thrustInfo.CurrentRotationalThrust} medial roll");
                 _rigidBody.AddRelativeTorque(roll * medialRollForce, 0, 0);
             }
@@ -108,7 +108,7 @@ namespace Player
             if (verticalThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = verticalThrustAction.ReadValue<float>();
-                _thrustInfo.CurrentDirectionalThrust = Abs(thrust * verticalThrustForce);
+                _thrustInfo.CurrentDirectionalThrust = Max(_thrustInfo.CurrentDirectionalThrust, Abs(thrust * verticalThrustForce));
                 _rigidBody.AddForce(transform.up * (thrust * verticalThrustForce), ForceMode.Impulse);
             }
 

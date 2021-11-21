@@ -11,15 +11,10 @@ namespace Player
         public AudioClip mainThrustersBurn;
         public float maxThrust = 600_000;
         public float rotationalThrustFactor = 0.3f;
-        private AudioSource _source;
+        public AudioSource source;
         private ThrustInfo _info;
         private bool _fading;
 
-
-        private void Start()
-        {
-            _source = gameObject.GetComponent<AudioSource>();
-        }
 
         [Inject]
         public void Init(ThrustInfo info)
@@ -32,34 +27,37 @@ namespace Player
             if (Abs(_info.CurrentDirectionalThrust) > 1)
             {
                 Debug.Log($"current directional thrust: {_info.CurrentDirectionalThrust}");
-                if (!_source.isPlaying)
+                if (!source.isPlaying)
                 {
-                    _source.clip = mainThrustersBurn;
-                    _source.spread = 180;
-                    _source.Play();
+                    source.clip = mainThrustersBurn;
+                    source.spread = 180;
+                    source.Play();
                 }
-                _source.volume = _info.CurrentDirectionalThrust / maxThrust;
+                source.volume = _info.CurrentDirectionalThrust / maxThrust;
+                _fading = false;
             }
             else if (Abs(_info.CurrentRotationalThrust) > 1)
             {
                 Debug.Log($"current rotational thrust: {_info.CurrentRotationalThrust}");
                 float CalculateVolume() => (_info.CurrentRotationalThrust / maxThrust) * rotationalThrustFactor;
-                if (!_source.isPlaying)
+                if (!source.isPlaying)
                 {
-                    _source.clip = mainThrustersBurn;
-                    _source.spread = 180;
-                    _source.volume = CalculateVolume();
-                    _source.Play();
-                    Debug.Log($"Started playing rotational thrust, volume is {_source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
+                    source.clip = mainThrustersBurn;
+                    source.spread = 180;
+                    source.volume = CalculateVolume();
+                    source.Play();
+                    Debug.Log($"Started playing rotational thrust, volume is {source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
                 }
                 else
                 {
-                    _source.volume = CalculateVolume();
+                    source.volume = CalculateVolume();
                     Debug.Log(
-                        $"Adjusted volume for rotational thrust, volume is {_source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
+                        $"Adjusted volume for rotational thrust, volume is {source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
                 }
+
+                _fading = false;
             }
-            else if (_source.isPlaying && !_fading && 
+            else if (source.isPlaying && !_fading && 
                 Max(_info.CurrentDirectionalThrust, _info.CurrentRotationalThrust) < 1)
             {
                 Debug.Log("Max " + Max(_info.CurrentDirectionalThrust, _info.CurrentRotationalThrust));
@@ -73,8 +71,8 @@ namespace Player
             {
                 Debug.Log("Started fading");
                 _fading = true;
-                var enumerator = _source.FadeOut(0.5f);
-                while (enumerator.MoveNext())
+                var enumerator = source.FadeOut(0.5f);
+                while (_fading && enumerator.MoveNext())
                 {
                     yield return null;
                 }
