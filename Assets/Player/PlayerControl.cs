@@ -73,13 +73,15 @@ namespace Player
             
             if (thrustAction.phase == InputActionPhase.Started)
             {
-                _thrustInfo.CurrentDirectionalThrust = Abs(forwardForce);
-                _rigidBody.AddForce(transform.forward * forwardForce, ForceMode.Impulse); 
+                var force = Abs(thrustAction.ReadValue<float>()) * forwardForce;
+                _thrustInfo.CurrentDirectionalThrust = force;
+                _rigidBody.AddForce(transform.forward * force, ForceMode.Impulse); 
             }
             if (reverseThrustAction.phase == InputActionPhase.Started)
             {
-                _thrustInfo.CurrentDirectionalThrust = Abs(reverseForce);
-                _rigidBody.AddForce(transform.forward * -reverseForce, ForceMode.Impulse); 
+                var force = Abs(reverseThrustAction	.ReadValue<float>()) * reverseForce;
+                _thrustInfo.CurrentDirectionalThrust = force;
+                _rigidBody.AddForce(transform.forward * -force, ForceMode.Impulse); 
             }
 
             if (lateralRollAction.phase == InputActionPhase.Started)
