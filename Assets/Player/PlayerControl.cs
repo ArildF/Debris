@@ -16,6 +16,7 @@ namespace Player
         public InputAction lateralThrustAction;
         public InputAction verticalThrustAction;
         public InputAction brakeAction;
+        public InputAction cameraControl;
     
         public float forwardForce = 1_000_000;
         public float reverseForce = 500_000;
@@ -24,11 +25,13 @@ namespace Player
         public float lateralThrustForce = 100_000;
         public float verticalThrustForce = 100_000;
         public float brakeRotationSpeed = 0.02f;
+        public Transform shipCamera;
         private Rigidbody _rigidBody;
         private InputAction[] _actions;
         private HudInfo _hudInfo;
         private bool _currentlyBraking;
         private ThrustInfo _thrustInfo;
+        private Vector2 _dpadDirection;
 
         [Inject]
         public void Init(HudInfo hudInfo, ThrustInfo thrustInfo)
@@ -41,6 +44,30 @@ namespace Player
         void Start()
         {
             _rigidBody = GetComponent<Rigidbody>();
+
+            cameraControl.started += ctx => _dpadDirection = ctx.ReadValue<Vector2>();
+
+            cameraControl.canceled += ctx =>
+            {
+                if (_dpadDirection.magnitude > Epsilon)
+                {
+                    var direction = new Vector3(_dpadDirection.x, 0, _dpadDirection.y);
+                    shipCamera.rotation = Quaternion.LookRotation(direction, transform.up);
+                    _dpadDirection = Vector2.zero;
+                }
+            };
+            cameraControl.started += ctx => Debug.Log("up down started");
+            cameraControl.performed += ctx =>
+            {
+                if (Abs(_dpadDirection.y) > Epsilon)
+                {
+                    var direction = new Vector3(0, _dpadDirection.y, 0);
+                    var up = new Vector3(0, 0, -_dpadDirection.y);
+                    shipCamera.rotation = Quaternion.LookRotation(direction, up);
+                    _dpadDirection = Vector2.zero;
+                }
+            };
+
         }
 
         private void Update()
@@ -53,7 +80,7 @@ namespace Player
             _actions = new[]
             {
                 thrustAction, reverseThrustAction, lateralRollAction, medialRollAction, lateralThrustAction,
-                verticalThrustAction, brakeAction,
+                verticalThrustAction, brakeAction, cameraControl, cameraControl,
             }; 
         
             foreach(var action in _actions)
@@ -88,7 +115,6 @@ namespace Player
             {
                 var roll = lateralRollAction.ReadValue<float>();
                 _thrustInfo.CurrentRotationalThrust = Abs(roll * lateralRollForce);
-                // Debug.Log($"Applying {_thrustInfo.CurrentRotationalThrust} lateral roll");
                 _rigidBody.AddRelativeTorque(0, 0, -roll * lateralRollForce);
             }
         
@@ -96,7 +122,6 @@ namespace Player
             {
                 var roll = medialRollAction.ReadValue<float>();
                 _thrustInfo.CurrentRotationalThrust = Max(_thrustInfo.CurrentRotationalThrust, Abs(roll * medialRollForce));
-                // Debug.Log($"Applying {_thrustInfo.CurrentRotationalThrust} medial roll");
                 _rigidBody.AddRelativeTorque(roll * medialRollForce, 0, 0);
             }
 
@@ -113,6 +138,7 @@ namespace Player
                 _thrustInfo.CurrentDirectionalThrust = Max(_thrustInfo.CurrentDirectionalThrust, Abs(thrust * verticalThrustForce));
                 _rigidBody.AddForce(transform.up * (thrust * verticalThrustForce), ForceMode.Impulse);
             }
+            
 
             if (!_currentlyBraking && brakeAction.phase == InputActionPhase.Started)
             {
