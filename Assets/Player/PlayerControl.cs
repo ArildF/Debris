@@ -32,17 +32,20 @@ namespace Player
         private bool _currentlyBraking;
         private ThrustInfo _thrustInfo;
         private Vector2 _dpadDirection;
+        private PlayerViewInfo _playerViewInfo;
 
         [Inject]
-        public void Init(HudInfo hudInfo, ThrustInfo thrustInfo)
+        public void Init(HudInfo hudInfo, ThrustInfo thrustInfo, PlayerViewInfo playerViewInfo)
         {
             _hudInfo = hudInfo;
             _thrustInfo = thrustInfo;
+            _playerViewInfo = playerViewInfo;
         }
 
         // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
+            _playerViewInfo.ShipTransform = transform;
             _rigidBody = GetComponent<Rigidbody>();
 
             cameraControl.started += ctx => _dpadDirection = ctx.ReadValue<Vector2>();
@@ -51,8 +54,17 @@ namespace Player
             {
                 if (_dpadDirection.magnitude > Epsilon)
                 {
-                    var direction = new Vector3(_dpadDirection.x, 0, _dpadDirection.y);
-                    shipCamera.rotation = Quaternion.LookRotation(direction, transform.up);
+                    var dir = (_dpadDirection.x, _dpadDirection.y) switch
+                    {
+                        var (x, _) when x < -Epsilon => ViewDirection.Left,
+                        var (x, _) when x > Epsilon => ViewDirection.Right,
+                        var (_, y) when y > Epsilon => ViewDirection.Front,
+                        var (_, y) when y < Epsilon => ViewDirection.Back,
+                        _ => ViewDirection.Front
+                    };
+                    _playerViewInfo.ViewDirection = dir;
+                    _playerViewInfo.UpDirection = transform.up;
+                    
                     _dpadDirection = Vector2.zero;
                 }
             };
@@ -61,9 +73,14 @@ namespace Player
             {
                 if (Abs(_dpadDirection.y) > Epsilon)
                 {
-                    var direction = new Vector3(0, _dpadDirection.y, 0);
-                    var up = new Vector3(0, 0, -_dpadDirection.y);
-                    shipCamera.rotation = Quaternion.LookRotation(direction, up);
+                    Debug.Log("up down performed");
+                    _playerViewInfo.ViewDirection = (_dpadDirection.x, _dpadDirection.y) switch
+                    {
+                        var (_, y) when y > Epsilon => ViewDirection.Top,
+                        var (_, y) when y < Epsilon => ViewDirection.Bottom,
+                        _ => ViewDirection.Front,
+                    };
+                    _playerViewInfo.UpDirection = new Vector3(0, 0, -_dpadDirection.y);
                     _dpadDirection = Vector2.zero;
                 }
             };
@@ -80,7 +97,7 @@ namespace Player
             _actions = new[]
             {
                 thrustAction, reverseThrustAction, lateralRollAction, medialRollAction, lateralThrustAction,
-                verticalThrustAction, brakeAction, cameraControl, cameraControl,
+                verticalThrustAction, brakeAction, cameraControl, 
             }; 
         
             foreach(var action in _actions)

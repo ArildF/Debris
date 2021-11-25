@@ -8,5 +8,6 @@ public class UniDiInstaller : MonoInstaller
     {
         Container.Bind<HudInfo>().AsSingle();
         Container.Bind<ThrustInfo>().AsSingle();
+        Container.Bind<PlayerViewInfo>().AsSingle();
     }
 }
