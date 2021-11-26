@@ -63,6 +63,7 @@ namespace Player
                         _ => ViewDirection.Front
                     };
                     _playerViewInfo.ViewDirection = dir;
+                    Debug.Log($"Setting UpDirection to {_playerViewInfo.UpDirection}");
                     _playerViewInfo.UpDirection = transform.up;
                     
                     _dpadDirection = Vector2.zero;
@@ -74,13 +75,15 @@ namespace Player
                 if (Abs(_dpadDirection.y) > Epsilon)
                 {
                     Debug.Log("up down performed");
-                    _playerViewInfo.ViewDirection = (_dpadDirection.x, _dpadDirection.y) switch
+                    var transformActual = transform;
+                    var forward = transformActual.forward;
+                    (_playerViewInfo.ViewDirection, _playerViewInfo.UpDirection) = 
+                        (_dpadDirection.x, _dpadDirection.y) switch
                     {
-                        var (_, y) when y > Epsilon => ViewDirection.Top,
-                        var (_, y) when y < Epsilon => ViewDirection.Bottom,
-                        _ => ViewDirection.Front,
+                        var (_, y) when y > Epsilon => (ViewDirection.Top, -forward),
+                        var (_, y) when y < Epsilon => (ViewDirection.Bottom, forward),
+                        _ => (ViewDirection.Front, transformActual.up),
                     };
-                    _playerViewInfo.UpDirection = new Vector3(0, 0, -_dpadDirection.y);
                     _dpadDirection = Vector2.zero;
                 }
             };
@@ -89,6 +92,7 @@ namespace Player
 
         private void Update()
         {
+            _playerViewInfo.UpDirection = transform.up;
             _hudInfo.AbsoluteVelocity = _rigidBody.velocity.magnitude;
         }
 
