@@ -1,3 +1,5 @@
+using Player;
+
 namespace HUD
 {
     public class HudInfo 
