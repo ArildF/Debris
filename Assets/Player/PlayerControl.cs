@@ -87,12 +87,18 @@ namespace Player
                     _dpadDirection = Vector2.zero;
                 }
             };
-
         }
 
         private void Update()
         {
-            _playerViewInfo.UpDirection = transform.up;
+            var playerTransform = transform;
+            var forward = playerTransform.forward;
+            _playerViewInfo.UpDirection = _playerViewInfo.ViewDirection switch
+            {
+                ViewDirection.Top => -forward,
+                ViewDirection.Bottom => forward,
+                _ => playerTransform.up,
+            };
             _hudInfo.AbsoluteVelocity = _rigidBody.velocity.magnitude;
         }
 

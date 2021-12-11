@@ -29,7 +29,6 @@ namespace Player
                 ViewDirection.Bottom => -up,
                 _ => Vector3.forward
             };
-            Debug.Log($"UpDirection: {_playerViewInfo.UpDirection}");
             transform.rotation = Quaternion.LookRotation(dir, _playerViewInfo.UpDirection);
         }
     }

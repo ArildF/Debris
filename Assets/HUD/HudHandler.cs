@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using Player;
 using TMPro;
@@ -15,6 +14,13 @@ namespace HUD
         private PlayerViewInfo _playerViewInfo;
         private ViewDirection _lastViewDirection = ViewDirection.Front;
 
+        [Inject]
+        public void Init(HudInfo hudInfo, PlayerViewInfo playerViewInfo)
+        {
+            _hudInfo = hudInfo;
+            _playerViewInfo = playerViewInfo;
+        }
+
         void Start()
         {
             SetViewDirectionText();
@@ -26,6 +32,7 @@ namespace HUD
             if (_lastViewDirection != _playerViewInfo.ViewDirection)
             {
                 SetViewDirectionText();
+                _lastViewDirection = _playerViewInfo.ViewDirection;
             }
         }
 
@@ -36,14 +43,6 @@ namespace HUD
                 ViewDirection.Front => "",
                 var dir => $"{dir} view",
             };
-            _lastViewDirection = _playerViewInfo.ViewDirection;
-        }
-
-        [Inject]
-        public void Init(HudInfo hudInfo, PlayerViewInfo playerViewInfo)
-        {
-            _hudInfo = hudInfo;
-            _playerViewInfo = playerViewInfo;
         }
     }
 }
