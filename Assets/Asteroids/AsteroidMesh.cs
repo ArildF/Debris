@@ -29,13 +29,11 @@ namespace Asteroids
             var vertices = new Vector3[resolution * resolution * 6];
             var triangles = new int[(resolution - 1) * (resolution - 1) * 6 * 6];
 
-            var edgeVertexes = new List<(int index, Vector3 vertex)>();
-            
             for (int face = 0; face < 6; face++)
             {
                 var vertexIndex = resolution * resolution * face;
                 var triangleIndex = (resolution - 1) * (resolution - 1) * 6 * face;
-                CreateSide(directions[face], vertices, vertexIndex, triangles, triangleIndex, edgeVertexes);
+                CreateSide(directions[face], vertices, vertexIndex, triangles, triangleIndex);
             }
             
             mesh.Clear();
@@ -45,8 +43,7 @@ namespace Asteroids
             mesh.RecalculateNormals();
         }
 
-        private void CreateSide(Vector3 localUp, Vector3[] vertices, int vertexIndex, int[] triangles, int triangleIndex,
-            List<(int index, Vector3 vertex)> edgeVertexes)
+        private void CreateSide(Vector3 localUp, Vector3[] vertices, int vertexIndex, int[] triangles, int triangleIndex)
         {
             var tangent = new Vector3(localUp.y, localUp.z, localUp.x);
             var biTangent = Vector3.Cross(localUp, tangent);
@@ -63,29 +60,14 @@ namespace Asteroids
                                               (percent.y - 0.5f) * 2 * biTangent;
                     Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
                     vertices[index] = pointOnUnitSphere;
-                    
-                    int GetExistingIndexIfExists(int i) 
-                    {
-                        var vector = vertices[i];
-                        for (int j = 0; j < i; j++)
-                        {
-                            if (Vector3.Angle(vector, vertices[j]) < Mathf.Epsilon)
-                            {
-                                return j;
-                            }
-                        }
-                        return i;
-                    }
 
-                    if (x != resolution - 1 && y != resolution -1)
-                    {
-                        triangles[triangleIndex++] = index;
-                        triangles[triangleIndex++] = index + resolution + 1;
-                        triangles[triangleIndex++] = index + resolution;
-                        triangles[triangleIndex++] = index;
-                        triangles[triangleIndex++] = index + 1;
-                        triangles[triangleIndex++] = index + resolution + 1;
-                    }
+                    if (x == resolution - 1 || y == resolution - 1) continue;
+                    triangles[triangleIndex++] = index;
+                    triangles[triangleIndex++] = index + resolution + 1;
+                    triangles[triangleIndex++] = index + resolution;
+                    triangles[triangleIndex++] = index;
+                    triangles[triangleIndex++] = index + 1;
+                    triangles[triangleIndex++] = index + resolution + 1;
                 }
             }
         }
