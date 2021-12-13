@@ -8,6 +8,9 @@ namespace Asteroids
         public int resolution;
 
         public bool autoUpdate = false;
+
+        [Range(0.1f, 500f)]
+        public float radius = 1f;
         
         public void CreateMesh()
         {
@@ -59,7 +62,7 @@ namespace Asteroids
                     Vector3 pointOnUnitCube = localUp +
                                               (percent.x - 0.5f) * 2 * tangent +
                                               (percent.y - 0.5f) * 2 * biTangent;
-                    Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
+                    Vector3 pointOnUnitSphere = pointOnUnitCube.normalized * radius;
                     vertices[index] = pointOnUnitSphere;
 
                     if (x == resolution - 1 || y == resolution - 1) continue;
