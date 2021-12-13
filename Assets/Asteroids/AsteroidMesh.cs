@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Asteroids
@@ -7,6 +6,8 @@ namespace Asteroids
     {
         [Range(2, 256)]
         public int resolution;
+
+        public bool autoUpdate = false;
         
         public void CreateMesh()
         {
@@ -15,11 +16,11 @@ namespace Asteroids
                 meshFilter = gameObject.AddComponent<MeshFilter>();
             }
 
-            if (!gameObject.TryGetComponent(out MeshRenderer renderer))
+            if (!gameObject.TryGetComponent(out MeshRenderer meshRenderer))
             {
-                renderer = gameObject.AddComponent<MeshRenderer>();
+                meshRenderer = gameObject.AddComponent<MeshRenderer>();
             }
-            renderer.sharedMaterial = new Material(Shader.Find("HDRP/Lit"));
+            meshRenderer.sharedMaterial = new Material(Shader.Find("HDRP/Lit"));
             
             var mesh = new Mesh();
             meshFilter.sharedMesh = mesh;
@@ -35,7 +36,7 @@ namespace Asteroids
                 var triangleIndex = (resolution - 1) * (resolution - 1) * 6 * face;
                 CreateSide(directions[face], vertices, vertexIndex, triangles, triangleIndex);
             }
-            
+
             mesh.Clear();
             mesh.vertices = vertices;
             mesh.triangles = triangles;

@@ -8,7 +8,7 @@ public class MaterialManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var mat = GetComponent<Renderer>().material;
+        var mat = GetComponent<Renderer>().sharedMaterial;
         var onUnitSphere = Random.onUnitSphere;
         // Debug.Log($"Setting _RandomPerInstanceVector to {onUnitSphere} for {transform.name}");
         mat.SetVector("_RandomPerInstanceVector", onUnitSphere);

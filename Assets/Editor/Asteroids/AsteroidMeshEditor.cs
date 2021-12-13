@@ -1,5 +1,3 @@
-using System;
-using Asteroids;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,15 +7,13 @@ namespace Asteroids
     public class AsteroidMeshEditor : Editor
     {
         private AsteroidMesh _asteroidMesh;
-        private bool _autoChange;
 
         public override void OnInspectorGUI()
         {
             using (var check = new EditorGUI.ChangeCheckScope())
             {
                 base.OnInspectorGUI();
-                _autoChange = GUILayout.Toggle(_autoChange, "Auto refresh");
-                if (check.changed /*&& _autoChange*/)
+                if (check.changed && _asteroidMesh.autoUpdate)
                 {
                     _asteroidMesh.CreateMesh();
                 }
