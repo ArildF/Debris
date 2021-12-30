@@ -19,7 +19,7 @@ namespace Asteroids
                 base.OnInspectorGUI();
                 if (check.changed && _asteroidMesh.autoUpdate)
                 {
-                    _asteroidMesh.CreateMesh();
+                    _asteroidMesh.CreateMesh(createAllLods: false);
                 }
             }
 
