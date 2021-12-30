@@ -28,6 +28,8 @@
 
 /[Aa]ssets/UI/UIObject3D/**
 
+/[Aa]ssets/Plugins/AsyncAwaitUtil/**
+
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
 
