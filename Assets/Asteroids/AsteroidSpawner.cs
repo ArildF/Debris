@@ -25,12 +25,27 @@ namespace Asteroids
                 var asteroid = asteroids[index];
                 var position = spawnSphereDiameter * Random.insideUnitSphere;
                 var rotation = Random.rotation;
-                var spawnedAsteroid = Instantiate(asteroid, position, rotation, transform);
-                
-                float RandomScale() => Random.Range(scaleMin, scaleMax);
-                spawnedAsteroid.transform.localScale = new Vector3(RandomScale(), RandomScale(), RandomScale());
+                var spawnedAsteroid = Instantiate(asteroid, Vector3.zero, Quaternion.identity, transform);
 
-                var rigidBody = spawnedAsteroid.GetComponent<Rigidbody>();
+                var asteroidMesh = spawnedAsteroid.GetComponent<AsteroidMesh>();
+                asteroidMesh.CreateMesh();
+
+                spawnedAsteroid.transform.position = position;
+                spawnedAsteroid.transform.rotation = rotation;
+                
+                float radius = asteroidMesh.shapeSettings.radius;
+                float volume = (4f / 3) * Mathf.PI * radius;
+                float mass = volume * 3.2f * 1000;
+                
+                
+                // float RandomScale() => Random.Range(scaleMin, scaleMax);
+                // spawnedAsteroid.transform.localScale = new Vector3(RandomScale(), RandomScale(), RandomScale());
+
+                var rigidBody = spawnedAsteroid.AddComponent<Rigidbody>();
+                rigidBody.useGravity = false;
+                rigidBody.angularDrag = 0;
+                rigidBody.drag = 0;
+                rigidBody.mass = mass;
                 rigidBody.AddTorque(Random.onUnitSphere * Random.Range(minRotationForce, maxRotationForce), 
                     ForceMode.Impulse);
                 rigidBody.AddForce(Random.onUnitSphere * Random.Range(minForce, maxForce));
