@@ -23,7 +23,6 @@ namespace Asteroids
             {
                DestroyImmediate(child.gameObject); 
             }
-            transform.DetachChildren();
             
             if (!gameObject.TryGetComponent(out LODGroup group))
             {
