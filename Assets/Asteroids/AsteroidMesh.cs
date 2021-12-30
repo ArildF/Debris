@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Debug = UnityEngine.Debug;
 
 namespace Asteroids
 {
@@ -20,7 +19,7 @@ namespace Asteroids
         public LodLevels lodLevels;
 
 
-        public void CreateMesh(bool createAllLods = true)
+        public async Task CreateMeshAsync(bool createAllLods = true)
         {
             var sw = Stopwatch.StartNew();
             
@@ -57,11 +56,9 @@ namespace Asteroids
                         parent = transform,
                     },
                 };
-                //     
                 int curRes = (int)(resolution / lodLevel.DivideBy);
-                Debug.Log($"Creating LOD {lodLevel.Level} at {curRes}");
                 
-                var renderer = CreateSingleMesh(go, curRes);
+                var renderer = await CreateSingleMesh(go, curRes);
                 lods.Add(new LOD(lodLevel.ScreenSizeFade, new[]{renderer}));
             }
             
@@ -70,10 +67,8 @@ namespace Asteroids
             print($"Created mesh(es): All lods: {createAllLods}. Elapsed {sw.Elapsed}");
         }
         
-        private Renderer CreateSingleMesh(GameObject go, int meshResolution)
+        private async Task<Renderer> CreateSingleMesh(GameObject go, int meshResolution)
         {
-            print($"Creating mesh for {go.name}, transform id {go.transform.GetInstanceID()}");
-            
             if (!go.TryGetComponent(out MeshFilter meshFilter))
             {
                 meshFilter = go.AddComponent<MeshFilter>();
@@ -95,14 +90,16 @@ namespace Asteroids
             var vertices = new Vector3[meshResolution * meshResolution * 6];
             var triangles = new int[(meshResolution - 1) * (meshResolution - 1) * 6 * 6];
 
-            Parallel.For(0, 6, face =>
+            var tasks = Enumerable.Range(0, 6).Select(face => Task.Run(() =>
             {
                 var vertexIndex = meshResolution * meshResolution * face;
                 var triangleIndex = (meshResolution - 1) * (meshResolution - 1) * 6 * face;
                 CreateSide(directions[face], vertices, vertexIndex, triangles, triangleIndex, shapeGenerator,
                     meshResolution);
-            });
+            }));
 
+            await Task.WhenAll(tasks);
+            
             mesh.Clear();
             mesh.vertices = vertices;
             mesh.triangles = triangles;

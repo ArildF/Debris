@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Asteroids
@@ -17,7 +18,7 @@ namespace Asteroids
 
 
         // Start is called before the first frame update
-        void Start()
+        async void Start()
         {
             for (int i = 0; i < initialSpawnNumber; i++)
             {
@@ -28,7 +29,7 @@ namespace Asteroids
                 var spawnedAsteroid = Instantiate(asteroid, Vector3.zero, Quaternion.identity, transform);
 
                 var asteroidMesh = spawnedAsteroid.GetComponent<AsteroidMesh>();
-                asteroidMesh.CreateMesh();
+                await asteroidMesh.CreateMeshAsync();
 
                 spawnedAsteroid.transform.position = position;
                 spawnedAsteroid.transform.rotation = rotation;

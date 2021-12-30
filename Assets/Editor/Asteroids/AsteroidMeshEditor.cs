@@ -19,13 +19,13 @@ namespace Asteroids
                 base.OnInspectorGUI();
                 if (check.changed && _asteroidMesh.autoUpdate)
                 {
-                    _asteroidMesh.CreateMesh(createAllLods: false);
+                    _asteroidMesh.CreateMeshAsync(createAllLods: false);
                 }
             }
 
             if (GUILayout.Button("Generate mesh"))
             {
-               _asteroidMesh.CreateMesh();
+               _asteroidMesh.CreateMeshAsync();
             }
 
             // DrawSettingsEditor(_asteroidMesh.shapeSettings, _asteroidMesh.OnPropertyChanged, ref _asteroidEditor);
