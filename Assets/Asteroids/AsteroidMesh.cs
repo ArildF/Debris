@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Debug = UnityEngine.Debug;
 
 namespace Asteroids
 {
@@ -19,6 +22,8 @@ namespace Asteroids
 
         public void CreateMesh(bool createAllLods = true)
         {
+            var sw = Stopwatch.StartNew();
+            
             foreach (Transform child in transform.Cast<Transform>().ToArray())
             {
                DestroyImmediate(child.gameObject); 
@@ -61,6 +66,8 @@ namespace Asteroids
             }
             
             group.SetLODs(lods.ToArray());
+            
+            print($"Created mesh(es): All lods: {createAllLods}. Elapsed {sw.Elapsed}");
         }
         
         private Renderer CreateSingleMesh(GameObject go, int meshResolution)
@@ -87,15 +94,14 @@ namespace Asteroids
             
             var vertices = new Vector3[meshResolution * meshResolution * 6];
             var triangles = new int[(meshResolution - 1) * (meshResolution - 1) * 6 * 6];
-            
-            // Debug.Log($"vertices.Length: {vertices.Length}, triangles.Length: {triangles.Length}");
 
-            for (int face = 0; face < 6; face++)
+            Parallel.For(0, 6, face =>
             {
                 var vertexIndex = meshResolution * meshResolution * face;
                 var triangleIndex = (meshResolution - 1) * (meshResolution - 1) * 6 * face;
-                CreateSide(directions[face], vertices, vertexIndex, triangles, triangleIndex, shapeGenerator, meshResolution);
-            }
+                CreateSide(directions[face], vertices, vertexIndex, triangles, triangleIndex, shapeGenerator,
+                    meshResolution);
+            });
 
             mesh.Clear();
             mesh.vertices = vertices;
