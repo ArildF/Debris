@@ -15,16 +15,16 @@ MonoBehaviour:
   levels:
   - Level: 0
     DivideBy: 1
-    ScreenSizeFade: 0.3
+    ScreenSizeFade: 0.2
   - Level: 1
-    DivideBy: 5
-    ScreenSizeFade: 0.1
+    DivideBy: 2
+    ScreenSizeFade: 0.05
   - Level: 2
     DivideBy: 10
-    ScreenSizeFade: 0.03
+    ScreenSizeFade: 0.005
   - Level: 3
     DivideBy: 50
-    ScreenSizeFade: 0.005
+    ScreenSizeFade: 0.002
   - Level: 4
     DivideBy: 100
     ScreenSizeFade: 0.001

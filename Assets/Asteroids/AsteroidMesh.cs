@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -106,6 +108,7 @@ namespace Asteroids
             
             mesh.RecalculateNormals();
             
+            AssetDatabase.CreateAsset(mesh, $"Assets\\__DynAsteroids\\{Guid.NewGuid().ToString()}.asset");
             return meshRenderer;
         }
 
