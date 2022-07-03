@@ -25,6 +25,9 @@ namespace Player
         public float lateralThrustForce = 100_000;
         public float verticalThrustForce = 100_000;
         public float brakeRotationSpeed = 0.02f;
+
+        public AnimationCurve _thrustCurve;
+        
         public Transform shipCamera;
         private Rigidbody _rigidBody;
         private InputAction[] _actions;
@@ -127,13 +130,15 @@ namespace Player
             
             if (thrustAction.phase == InputActionPhase.Started)
             {
-                var force = Abs(thrustAction.ReadValue<float>()) * forwardForce;
+                var input = thrustAction.ReadValue<float>();
+                var force = Abs(input) * _thrustCurve.Evaluate(input) * forwardForce;
                 _thrustInfo.CurrentDirectionalThrust = force;
                 _rigidBody.AddForce(transform.forward * force, ForceMode.Impulse); 
             }
             if (reverseThrustAction.phase == InputActionPhase.Started)
             {
-                var force = Abs(reverseThrustAction	.ReadValue<float>()) * reverseForce;
+                var input = reverseThrustAction.ReadValue<float>();
+                var force = Abs(input) * _thrustCurve.Evaluate(input) * reverseForce;
                 _thrustInfo.CurrentDirectionalThrust = force;
                 _rigidBody.AddForce(transform.forward * -force, ForceMode.Impulse); 
             }
