@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using HUD;
 using UniDi;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace Player
         public InputAction verticalThrustAction;
         public InputAction brakeAction;
         public InputAction cameraControl;
+        public InputAction targetAction;
     
         public float forwardForce = 1_000_000;
         public float reverseForce = 500_000;
@@ -27,6 +29,8 @@ namespace Player
         public float brakeRotationSpeed = 0.02f;
 
         public AnimationCurve _thrustCurve;
+
+        public float targetingSphereDiameter = 400;
         
         public Transform shipCamera;
         private Rigidbody _rigidBody;
@@ -36,13 +40,15 @@ namespace Player
         private ThrustInfo _thrustInfo;
         private Vector2 _dpadDirection;
         private PlayerViewInfo _playerViewInfo;
+        private TargetInfo _targetInfo;
 
         [Inject]
-        public void Init(HudInfo hudInfo, ThrustInfo thrustInfo, PlayerViewInfo playerViewInfo)
+        public void Init(HudInfo hudInfo, ThrustInfo thrustInfo, PlayerViewInfo playerViewInfo, TargetInfo targetInfo)
         {
             _hudInfo = hudInfo;
             _thrustInfo = thrustInfo;
             _playerViewInfo = playerViewInfo;
+            _targetInfo = targetInfo;
         }
 
         // Start is called before the first frame update
@@ -90,6 +96,11 @@ namespace Player
                     _dpadDirection = Vector2.zero;
                 }
             };
+
+            targetAction.canceled += ctx => Debug.Log("targetAction cancelled");
+            targetAction.performed += ctx => Debug.Log("targetAction performed");
+            targetAction.performed += ctx => TryTarget();
+            targetAction.started += ctx => Debug.Log("targetAction started");
         }
 
         private void Update()
@@ -110,7 +121,7 @@ namespace Player
             _actions = new[]
             {
                 thrustAction, reverseThrustAction, lateralRollAction, medialRollAction, lateralThrustAction,
-                verticalThrustAction, brakeAction, cameraControl, 
+                verticalThrustAction, brakeAction, cameraControl, targetAction,
             }; 
         
             foreach(var action in _actions)
@@ -175,6 +186,24 @@ namespace Player
             if (!_currentlyBraking && brakeAction.phase == InputActionPhase.Started)
             {
                 StartCoroutine(Brake());
+            }
+        }
+
+        private void TryTarget()
+        {
+            print($"Trying to target");
+            var hits = Physics.SphereCastAll(transform.position, targetingSphereDiameter, transform.forward);
+            print($"Got {hits.Length} hits from sphere cast");
+            var target = hits.Select(h => h.transform).FirstOrDefault(t => t.transform != _targetInfo.Target);
+            if (target != null)
+            {
+                print($"Acquired target{target.transform.name}");
+                _targetInfo.Target = target.transform;
+            }
+            else
+            {
+                print("Found no targets");
+                _targetInfo.Target = null;
             }
         }
 

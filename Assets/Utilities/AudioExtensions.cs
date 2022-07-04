@@ -10,10 +10,8 @@ namespace Utilities
             var volume = self.volume;
             float startVolume = volume;
             float step = volume / time;
-            Debug.Log($"Starting fade, step {step}");
             while (self.volume > Mathf.Epsilon)
             {
-                Debug.Log($"Fading at {self.volume}");
                 self.volume -= step * Time.deltaTime;
                 yield return null;
             }

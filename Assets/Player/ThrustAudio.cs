@@ -26,7 +26,7 @@ namespace Player
         {
             if (Abs(_info.CurrentDirectionalThrust) > 1)
             {
-                Debug.Log($"current directional thrust: {_info.CurrentDirectionalThrust}");
+                // Debug.Log($"current directional thrust: {_info.CurrentDirectionalThrust}");
                 if (!source.isPlaying)
                 {
                     source.clip = mainThrustersBurn;
@@ -38,7 +38,7 @@ namespace Player
             }
             else if (Abs(_info.CurrentRotationalThrust) > 1)
             {
-                Debug.Log($"current rotational thrust: {_info.CurrentRotationalThrust}");
+                // Debug.Log($"current rotational thrust: {_info.CurrentRotationalThrust}");
                 float CalculateVolume() => (_info.CurrentRotationalThrust / maxThrust) * rotationalThrustFactor;
                 if (!source.isPlaying)
                 {
@@ -46,13 +46,13 @@ namespace Player
                     source.spread = 180;
                     source.volume = CalculateVolume();
                     source.Play();
-                    Debug.Log($"Started playing rotational thrust, volume is {source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
+                    // Debug.Log($"Started playing rotational thrust, volume is {source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
                 }
                 else
                 {
                     source.volume = CalculateVolume();
-                    Debug.Log(
-                        $"Adjusted volume for rotational thrust, volume is {source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
+                    // Debug.Log(
+                    //     $"Adjusted volume for rotational thrust, volume is {source.volume}, rotational thrust is {_info.CurrentRotationalThrust}");
                 }
 
                 _fading = false;
@@ -60,7 +60,7 @@ namespace Player
             else if (source.isPlaying && !_fading && 
                 Max(_info.CurrentDirectionalThrust, _info.CurrentRotationalThrust) < 1)
             {
-                Debug.Log("Max " + Max(_info.CurrentDirectionalThrust, _info.CurrentRotationalThrust));
+                // Debug.Log("Max " + Max(_info.CurrentDirectionalThrust, _info.CurrentRotationalThrust));
                 StartCoroutine(FadeOut());
             }
         }
@@ -69,7 +69,6 @@ namespace Player
         {
             try
             {
-                Debug.Log("Started fading");
                 _fading = true;
                 var enumerator = source.FadeOut(0.5f);
                 while (_fading && enumerator.MoveNext())
@@ -79,7 +78,6 @@ namespace Player
             }
             finally
             {
-                Debug.Log("Stopped fading");
                 _fading = false;
             }
         }
