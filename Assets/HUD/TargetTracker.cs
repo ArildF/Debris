@@ -1,10 +1,11 @@
 using System;
+using HUD.UI;
 using JetBrains.Annotations;
-using Player.UI;
+using Player;
 using UniDi;
 using UnityEngine;
 
-namespace Player
+namespace HUD
 {
     [RequireComponent(typeof(ReticleCircle))]
     public class TargetTracker : MonoBehaviour

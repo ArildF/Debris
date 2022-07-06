@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Player
+namespace HUD
 {
     public class TargetInfo
     {

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Player.UI
+namespace HUD.UI
 {
     // stolen and adapted from https://forum.unity.com/threads/draw-circles-or-primitives-on-the-new-ui-canvas.272488/#post-2005236
     [AddComponentMenu("UI/Debris Reticle Circle", 0)]
