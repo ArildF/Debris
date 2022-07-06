@@ -42,12 +42,15 @@ namespace Asteroids
                 collider.convex = true;
                 collider.cookingOptions = MeshColliderCookingOptions.None;
 
-                var lodChild = child.Cast<Transform>().Reverse().Skip(1).FirstOrDefault()
-                    ?? child.Cast<Transform>().FirstOrDefault();
-                if (lodChild != null)
+                var lodChildMesh = child.Cast<Transform>().Reverse()
+                    .Select(t => t.gameObject.GetComponent<MeshFilter>().sharedMesh)
+                    .Where(m => m.triangles.Length > 3)
+                    .Skip(1).FirstOrDefault();
+                if (lodChildMesh != null)
                 {
-                    var filter = lodChild.gameObject.GetComponent<MeshFilter>();
-                    collider.sharedMesh = filter.sharedMesh;
+                    print(
+                        $"collider mesh vertices {lodChildMesh.vertexCount} faces {lodChildMesh.triangles.Length}");
+                    collider.sharedMesh = lodChildMesh;
                 }
                 else
                 {

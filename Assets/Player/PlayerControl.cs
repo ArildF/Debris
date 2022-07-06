@@ -97,10 +97,7 @@ namespace Player
                 }
             };
 
-            targetAction.canceled += ctx => Debug.Log("targetAction cancelled");
-            targetAction.performed += ctx => Debug.Log("targetAction performed");
-            targetAction.performed += ctx => TryTarget();
-            targetAction.started += ctx => Debug.Log("targetAction started");
+            targetAction.performed += _ => TryTarget();
         }
 
         private void Update()
@@ -144,6 +141,7 @@ namespace Player
                 var input = thrustAction.ReadValue<float>();
                 var force = Abs(input) * _thrustCurve.Evaluate(input) * forwardForce;
                 _thrustInfo.CurrentDirectionalThrust = force;
+                print($"Input {input}, Forward Force {forwardForce}, force {force}");
                 _rigidBody.AddForce(transform.forward * force, ForceMode.Impulse); 
             }
             if (reverseThrustAction.phase == InputActionPhase.Started)
@@ -151,6 +149,7 @@ namespace Player
                 var input = reverseThrustAction.ReadValue<float>();
                 var force = Abs(input) * _thrustCurve.Evaluate(input) * reverseForce;
                 _thrustInfo.CurrentDirectionalThrust = force;
+                print($"Input {input}, reverse Force {reverseForce}, force {force}");
                 _rigidBody.AddForce(transform.forward * -force, ForceMode.Impulse); 
             }
 
