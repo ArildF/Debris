@@ -21,6 +21,8 @@ namespace HUD
         [Inject]
         private PlayerViewInfo _playerViewInfo;
 
+        [Inject(Id = "PlayerRigidBody")] private Rigidbody _playerRigidBody;
+
 
         private void Start()
         {
@@ -31,32 +33,44 @@ namespace HUD
         private void Update()
         {
             _reticleCircle.enabled = _targetInfo.Target != null;
-            if (_targetInfo.Target != null)
+            if (_targetInfo.Target == null)
             {
-                Vector3 point = _camera.WorldToScreenPoint(_targetInfo.Target.position);
-                Vector3 original = point;
+                return;
+            }
+            Vector3 point = _camera.WorldToScreenPoint(_targetInfo.Target.position);
+            Vector3 original = point;
 
-                point.x = Mathf.Clamp(point.x, 0, _camera.pixelWidth);
-                point.y = Mathf.Clamp(point.y, 0, _camera.pixelHeight);
+            point.x = Mathf.Clamp(point.x, 0, _camera.pixelWidth);
+            point.y = Mathf.Clamp(point.y, 0, _camera.pixelHeight);
 
-                if (point != original || point.z < 0)
+            if (point != original || point.z < 0)
+            {
+                point = CalculateScreenEdgeIntersection();
+                if (!_reticleCircle.fill)
                 {
-                    point = CalculateScreenEdgeIntersection();
-                    if (!_reticleCircle.fill)
-                    {
-                        _reticleCircle.fill = true;
-                        _reticleCircle.SetVerticesDirty();
-                    }
-                }
-                else if((point == original && point.z >= 0) && _reticleCircle.fill)
-                {
-                    _reticleCircle.fill = false;
+                    _reticleCircle.fill = true;
                     _reticleCircle.SetVerticesDirty();
                 }
-
-                _reticleCircle.transform.position = (Vector2)point;
+            }
+            else if((point == original && point.z >= 0) && _reticleCircle.fill)
+            {
+                _reticleCircle.fill = false;
+                _reticleCircle.SetVerticesDirty();
             }
 
+            _reticleCircle.transform.position = (Vector2)point;
+
+            var rb = _targetInfo.Target.GetComponent<Rigidbody>();
+            var targetVelocity = rb.velocity;
+            var playerVelocity = _playerRigidBody.velocity;
+
+            var resultDir = targetVelocity - playerVelocity;
+            
+            var shipRotation = _playerViewInfo.ShipTransform.rotation;
+            var rotation = Quaternion.Inverse(shipRotation) * Quaternion.LookRotation(resultDir);
+            _reticleCircle.rotation = rotation;
+            
+            _reticleCircle.SetVerticesDirty();
         }
 
         private Vector3 CalculateScreenEdgeIntersection()
@@ -69,13 +83,12 @@ namespace HUD
 
             var height = _camera.pixelHeight;
             var width = _camera.pixelWidth;
-            var planes = new[]
-            {
-                new Plane(Vector3.right, new Vector3(0, 0, 0)),
-                new Plane(Vector3.down, new Vector3(0, height, 0)),
-                new Plane(Vector3.left, new Vector3(width, height, 0)),
-                new Plane(Vector3.up, new Vector3(width, 0, 0)),
-            };
+            
+            Span<Plane> planes = stackalloc Plane[4];
+            planes[0] = new Plane(Vector3.right, new Vector3(0, 0, 0));
+            planes[1] = new Plane(Vector3.down, new Vector3(0, height, 0));
+            planes[2] = new Plane(Vector3.left, new Vector3(width, height, 0));
+            planes[3] = new Plane(Vector3.up, new Vector3(width, 0, 0));
 
             var centerScreen = new Vector3(width / 2f, height / 2f, 0);
             projectedDirection.z = 0;

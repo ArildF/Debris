@@ -11,6 +11,16 @@ namespace HUD.UI
         public int fillPercent;
         public bool fill = true;
         public int thickness = 5;
+
+        public float distance = 4f;
+        public float zDistance = 20f;
+
+        public int numberOfCircles = 4;
+
+        public bool rotate = true;
+        
+
+        public Quaternion rotation;
  
         void Update(){
             thickness = (int)Mathf.Clamp(thickness, 0, rectTransform.rect.width/2);
@@ -18,59 +28,78 @@ namespace HUD.UI
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
-            float outer = -rectTransform.pivot.x * rectTransform.rect.width;
-            float inner = -rectTransform.pivot.x * rectTransform.rect.width + this.thickness;
  
+            print("Rendering");
             vh.Clear();
- 
+            
             UIVertex vert = UIVertex.simpleVert;
-            Vector2 prevX = Vector2.zero;
-            Vector2 prevY = Vector2.zero;
+            Vector3 prevX = Vector3.zero;
+            Vector3 prevY = Vector3.zero;
  
             float f = (float)(this.fillPercent/100f);
             int fa = (int)(361 * f);
 
             var quad = new UIVertex[4];
- 
-            for(int i=0; i<fa; i++)
-            {
-                float rad = Mathf.Deg2Rad * i;
-                float c = Mathf.Cos(rad);
-                float s = Mathf.Sin(rad);
-                float x = outer * c;
-                float y = inner * c;
-                vert.color = color;
-                vert.position = prevX;
-                vh.AddVert(vert);
-                quad[0] = vert;
-                
-                prevX = new Vector2(outer * c, outer * s);
-                vert.position = prevX;
-                vh.AddVert(vert);
-                quad[1] = vert;
 
-                
-                if(this.fill)
+            UIVertex Rotate(UIVertex v)
+            {
+                var rotated = rotate ? new UIVertex
                 {
-                    vert.position = Vector2.zero;
-                    vh.AddVert(vert);
-                    vh.AddVert(vert);
-                    quad[2] = vert;
-                    quad[3] = vert;
-                }
-                else
+                    color = v.color,
+                    normal = rotation * v.normal,
+                    position = rotation * v.position,
+                    tangent = v.tangent,
+                } : v;
+                return rotated;
+            }
+
+            for (int circle = 0; circle < (fill ? 1 : numberOfCircles); circle++)
+            {
+                float outer = -rectTransform.pivot.x * rectTransform.rect.width + (distance * circle);
+                float inner = -rectTransform.pivot.x * rectTransform.rect.width + thickness + (distance * circle);
+
+                for (int i = 0; i < fa; i++)
                 {
-                    vert.position = new Vector2(inner * c, inner * s);;
-                    vh.AddVert(vert);
-                    quad[2] = vert;
-                    vert.position = prevY;
-                    vh.AddVert(vert);
-                    quad[3] = vert;
-                    prevY = new Vector2(inner * c, inner * s);
+                    float rad = Mathf.Deg2Rad * i;
+                    float c = Mathf.Cos(rad);
+                    float s = Mathf.Sin(rad);
+                    float x = outer * c;
+                    float y = inner * c;
+                    float z = circle * zDistance;
+                    vert.color = color;
+                    vert.position = prevX;
+                    // vh.AddVert(Rotate(vert));
+                    quad[0] = Rotate(vert);
+
+                    prevX = new Vector3(outer * c, outer * s, z);
+                    vert.position = prevX;
+                    // vh.AddVert(Rotate(vert));
+                    quad[1] = Rotate(vert);
+
+
+                    if (fill)
+                    {
+                        vert.position = Vector3.zero;
+                        // vh.AddVert(Rotate(vert));
+                        // vh.AddVert(Rotate(vert));
+                        quad[2] = Rotate(vert);
+                        quad[3] = Rotate(vert);
+                    }
+                    else
+                    {
+                        vert.position = new Vector3(inner * c, inner * s, z);
+                        ;
+                        // vh.AddVert(Rotate(vert));
+                        quad[2] = Rotate(vert);
+                        vert.position = prevY;
+                        // vh.AddVert(Rotate(vert));
+                        quad[3] = Rotate(vert);
+                        prevY = new Vector3(inner * c, inner * s, z);
+                    }
+
+                    vh.AddUIVertexQuad(quad);
+
                 }
-                
-                vh.AddUIVertexQuad(quad);
-                
             }
         }
     }
