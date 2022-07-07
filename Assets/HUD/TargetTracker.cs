@@ -64,11 +64,13 @@ namespace HUD
             var targetVelocity = rb.velocity;
             var playerVelocity = _playerRigidBody.velocity;
 
-            var resultDir = targetVelocity - playerVelocity;
+            var relativeVelocity = targetVelocity - playerVelocity;
             
             var shipRotation = _playerViewInfo.ShipTransform.rotation;
-            var rotation = Quaternion.Inverse(shipRotation) * Quaternion.LookRotation(resultDir);
+            var rotation = Quaternion.Inverse(shipRotation) * Quaternion.LookRotation(relativeVelocity);
             _reticleCircle.rotation = rotation;
+
+            _reticleCircle.zDistance = Mathf.Log(relativeVelocity.magnitude) * 10f;
             
             _reticleCircle.SetVerticesDirty();
         }
