@@ -22,6 +22,7 @@ namespace HUD.UI
 
         public Quaternion rotation;
         private static readonly int ZSpace = Shader.PropertyToID("_ZSpace");
+        private UIVertex[] _quad = new UIVertex[4];
 
         void Update(){
             thickness = (int)Mathf.Clamp(thickness, 0, rectTransform.rect.width/2);
@@ -32,13 +33,9 @@ namespace HUD.UI
             vh.Clear();
             
             UIVertex vert = UIVertex.simpleVert;
-            Vector3 prevX = Vector3.zero;
-            Vector3 prevY = Vector3.zero;
  
             float f = (float)(this.fillPercent/100f);
             int fa = (int)(361 * f);
-
-            var quad = new UIVertex[4];
 
             UIVertex Rotate(UIVertex v)
             {
@@ -56,7 +53,12 @@ namespace HUD.UI
             {
                 float outer = -rectTransform.pivot.x * rectTransform.rect.width + (distance * circle);
                 float inner = -rectTransform.pivot.x * rectTransform.rect.width + thickness + (distance * circle);
+                
+                float z = circle * zDistance;
 
+                Vector3 prevX = new Vector3(outer, 0, z);
+                Vector3 prevY = new Vector3(inner, 0, z);
+                
                 for (int i = 0; i < fa; i++)
                 {
                     float rad = Mathf.Deg2Rad * i;
@@ -64,32 +66,30 @@ namespace HUD.UI
                     float s = Mathf.Sin(rad);
                     float x = outer * c;
                     float y = inner * c;
-                    float z = circle * zDistance;
                     vert.color = color;
                     vert.position = prevX;
-                    quad[0] = Rotate(vert);
+                    _quad[0] = Rotate(vert);
 
                     prevX = new Vector3(outer * c, outer * s, z);
                     vert.position = prevX;
-                    quad[1] = Rotate(vert);
+                    _quad[1] = Rotate(vert);
 
                     if (fill)
                     {
                         vert.position = Vector3.zero;
-                        quad[2] = Rotate(vert);
-                        quad[3] = Rotate(vert);
+                        _quad[2] = Rotate(vert);
+                        _quad[3] = Rotate(vert);
                     }
                     else
                     {
                         vert.position = new Vector3(inner * c, inner * s, z);
-                        ;
-                        quad[2] = Rotate(vert);
+                        _quad[2] = Rotate(vert);
                         vert.position = prevY;
-                        quad[3] = Rotate(vert);
+                        _quad[3] = Rotate(vert);
                         prevY = new Vector3(inner * c, inner * s, z);
                     }
 
-                    vh.AddUIVertexQuad(quad);
+                    vh.AddUIVertexQuad(_quad);
                 }
             }
             materialForRendering.SetFloat(ZSpace, numberOfCircles * zDistance);
