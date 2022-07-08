@@ -21,15 +21,14 @@ namespace HUD.UI
         
 
         public Quaternion rotation;
- 
+        private static readonly int ZSpace = Shader.PropertyToID("_ZSpace");
+
         void Update(){
             thickness = (int)Mathf.Clamp(thickness, 0, rectTransform.rect.width/2);
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
- 
-            print("Rendering");
             vh.Clear();
             
             UIVertex vert = UIVertex.simpleVert;
@@ -68,20 +67,15 @@ namespace HUD.UI
                     float z = circle * zDistance;
                     vert.color = color;
                     vert.position = prevX;
-                    // vh.AddVert(Rotate(vert));
                     quad[0] = Rotate(vert);
 
                     prevX = new Vector3(outer * c, outer * s, z);
                     vert.position = prevX;
-                    // vh.AddVert(Rotate(vert));
                     quad[1] = Rotate(vert);
-
 
                     if (fill)
                     {
                         vert.position = Vector3.zero;
-                        // vh.AddVert(Rotate(vert));
-                        // vh.AddVert(Rotate(vert));
                         quad[2] = Rotate(vert);
                         quad[3] = Rotate(vert);
                     }
@@ -89,18 +83,16 @@ namespace HUD.UI
                     {
                         vert.position = new Vector3(inner * c, inner * s, z);
                         ;
-                        // vh.AddVert(Rotate(vert));
                         quad[2] = Rotate(vert);
                         vert.position = prevY;
-                        // vh.AddVert(Rotate(vert));
                         quad[3] = Rotate(vert);
                         prevY = new Vector3(inner * c, inner * s, z);
                     }
 
                     vh.AddUIVertexQuad(quad);
-
                 }
             }
+            materialForRendering.SetFloat(ZSpace, numberOfCircles * zDistance);
         }
     }
 }
