@@ -38,20 +38,9 @@ namespace HUD.UI
             
             UIVertex vert = UIVertex.simpleVert;
  
-            float f = (float)(this.fillPercent/100f);
+            float f = fillPercent/100f;
             int fa = (int)(361 * f);
 
-            UIVertex Rotate(UIVertex v)
-            {
-                var rotated = rotate ? new UIVertex
-                {
-                    color = v.color,
-                    normal = rotation * v.normal,
-                    position = rotation * v.position,
-                    tangent = v.tangent,
-                } : v;
-                return rotated;
-            }
 
             for (int circle = 0; circle < (fill ? 1 : numberOfCircles); circle++)
             {
@@ -72,37 +61,37 @@ namespace HUD.UI
                     float y = inner * c;
                     vert.color = color;
                     vert.position = prevX;
-                    _quad[0] = Rotate(vert);
+                    _quad[0] = vert;
 
                     vert.position = prevX + Vector3.forward * (thickness / 2f);
-                    _quad2[0] = Rotate(vert);
+                    _quad2[0] = vert;
                     vert.position = prevX + Vector3.back * (thickness / 2f);
-                    _quad2[1] = Rotate(vert);
+                    _quad2[1] = vert;
 
                     prevX = new Vector3(outer * c, outer * s, z);
                     vert.position = prevX;
-                    _quad[1] = Rotate(vert);
+                    _quad[1] = vert;
                     
                     vert.position = prevX + Vector3.back * (thickness / 2f);
-                    _quad2[2] = Rotate(vert);
+                    _quad2[2] = vert;
                     
                     vert.position = prevX + Vector3.forward * (thickness / 2f);
-                    _quad2[3] = Rotate(vert);
+                    _quad2[3] = vert;
                     
                     
 
                     if (fill)
                     {
                         vert.position = Vector3.zero;
-                        _quad[2] = Rotate(vert);
-                        _quad[3] = Rotate(vert);
+                        _quad[2] = vert;
+                        _quad[3] = vert;
                     }
                     else
                     {
                         vert.position = new Vector3(inner * c, inner * s, z);
-                        _quad[2] = Rotate(vert);
+                        _quad[2] = vert;
                         vert.position = prevY;
-                        _quad[3] = Rotate(vert);
+                        _quad[3] = vert;
                         
                         prevY = new Vector3(inner * c, inner * s, z);
                     }
@@ -119,6 +108,8 @@ namespace HUD.UI
             {
                 transform.position = position;
             }
+
+            transform.rotation = rotate ? rotation : Quaternion.identity;
             materialForRendering.SetFloat(ZSpace, numberOfCircles * zDistance);
         }
     }

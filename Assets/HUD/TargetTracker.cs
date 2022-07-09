@@ -49,12 +49,14 @@ namespace HUD
                 if (!_reticleCircle.fill)
                 {
                     _reticleCircle.fill = true;
+                    _reticleCircle.rotate = false;
                     _reticleCircle.SetVerticesDirty();
                 }
             }
             else if((point == original && point.z >= 0) && _reticleCircle.fill)
             {
                 _reticleCircle.fill = false;
+                _reticleCircle.rotate = true;
                 _reticleCircle.SetVerticesDirty();
             }
 
