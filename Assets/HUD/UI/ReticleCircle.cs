@@ -18,11 +18,15 @@ namespace HUD.UI
         public int numberOfCircles = 4;
 
         public bool rotate = true;
+
+        public bool showSides = true;
         
+        public Vector3 position;
 
         public Quaternion rotation;
         private static readonly int ZSpace = Shader.PropertyToID("_ZSpace");
-        private UIVertex[] _quad = new UIVertex[4];
+        private readonly UIVertex[] _quad = new UIVertex[4];
+        private readonly UIVertex[] _quad2 = new UIVertex[4];
 
         void Update(){
             thickness = (int)Mathf.Clamp(thickness, 0, rectTransform.rect.width/2);
@@ -70,9 +74,22 @@ namespace HUD.UI
                     vert.position = prevX;
                     _quad[0] = Rotate(vert);
 
+                    vert.position = prevX + Vector3.forward * (thickness / 2f);
+                    _quad2[0] = Rotate(vert);
+                    vert.position = prevX + Vector3.back * (thickness / 2f);
+                    _quad2[1] = Rotate(vert);
+
                     prevX = new Vector3(outer * c, outer * s, z);
                     vert.position = prevX;
                     _quad[1] = Rotate(vert);
+                    
+                    vert.position = prevX + Vector3.back * (thickness / 2f);
+                    _quad2[2] = Rotate(vert);
+                    
+                    vert.position = prevX + Vector3.forward * (thickness / 2f);
+                    _quad2[3] = Rotate(vert);
+                    
+                    
 
                     if (fill)
                     {
@@ -86,11 +103,21 @@ namespace HUD.UI
                         _quad[2] = Rotate(vert);
                         vert.position = prevY;
                         _quad[3] = Rotate(vert);
+                        
                         prevY = new Vector3(inner * c, inner * s, z);
                     }
 
                     vh.AddUIVertexQuad(_quad);
+                    if (showSides)
+                    {
+                        vh.AddUIVertexQuad(_quad2);
+                    }
                 }
+            }
+
+            if (!Application.isPlaying)
+            {
+                transform.position = position;
             }
             materialForRendering.SetFloat(ZSpace, numberOfCircles * zDistance);
         }
