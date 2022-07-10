@@ -71,10 +71,6 @@ namespace HUD
             var shipRotation = _playerViewInfo.ShipTransform.rotation;
             var rotation = Quaternion.Inverse(shipRotation) * Quaternion.LookRotation(relativeVelocity);
             _reticleCircle.rotation = rotation;
-
-            _reticleCircle.zDistance = Mathf.Log(relativeVelocity.magnitude) * 10f;
-            
-            _reticleCircle.SetVerticesDirty();
         }
 
         private Vector3 CalculateScreenEdgeIntersection()

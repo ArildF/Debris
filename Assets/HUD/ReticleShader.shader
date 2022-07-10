@@ -6,9 +6,17 @@ Shader "ReticleShader"
 	{
 		[PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
 		_Color ("Tint", Color) = (1,1,1,1)
-		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		[PerRendererData] _AlphaTex ("External Alpha", 2D) = "white" {}
-		_ZSpace("ZSpace", Float) = 0
+		
+		_StencilComp ("Stencil Comparison", Float) = 8
+		_Stencil ("Stencil ID", Float) = 0
+		_StencilOp ("Stencil Operation", Float) = 0
+		_StencilWriteMask ("Stencil Write Mask", Float) = 255
+		_StencilReadMask ("Stencil Read Mask", Float) = 255
+
+		_ColorMask ("Color Mask", Float) = 15
+
+		[Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+		_Facing("Facing", Int) = 0
 
 	}
 
@@ -17,15 +25,34 @@ Shader "ReticleShader"
 		LOD 0
 
 		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" "PreviewType"="Plane" "CanUseSpriteAtlas"="True" }
+		
+		Stencil
+		{
+			Ref [_Stencil]
+			ReadMask [_StencilReadMask]
+			WriteMask [_StencilWriteMask]
+			CompFront [_StencilComp]
+			PassFront [_StencilOp]
+			FailFront Keep
+			ZFailFront Keep
+			CompBack Always
+			PassBack Keep
+			FailBack Keep
+			ZFailBack Keep
+		}
+
 
 		Cull Off
 		Lighting Off
 		ZWrite Off
-		Blend One OneMinusSrcAlpha
-		
+		ZTest [unity_GUIZTestMode]
+		Blend SrcAlpha OneMinusSrcAlpha
+		ColorMask [_ColorMask]
+
 		
 		Pass
 		{
+			Name "Default"
 		CGPROGRAM
 			
 			#ifndef UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX
@@ -34,11 +61,15 @@ Shader "ReticleShader"
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma target 3.0
-			#pragma multi_compile _ PIXELSNAP_ON
-			#pragma multi_compile _ ETC1_EXTERNAL_ALPHA
-			#include "UnityCG.cginc"
-			
 
+			#include "UnityCG.cginc"
+			#include "UnityUI.cginc"
+
+			#pragma multi_compile __ UNITY_UI_CLIP_RECT
+			#pragma multi_compile __ UNITY_UI_ALPHACLIP
+			
+			
+			
 			struct appdata_t
 			{
 				float4 vertex   : POSITION;
@@ -52,17 +83,18 @@ Shader "ReticleShader"
 			{
 				float4 vertex   : SV_POSITION;
 				fixed4 color    : COLOR;
-				float2 texcoord  : TEXCOORD0;
+				half2 texcoord  : TEXCOORD0;
+				float4 worldPosition : TEXCOORD1;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
-				float4 ase_texcoord1 : TEXCOORD1;
+				
 			};
 			
 			uniform fixed4 _Color;
-			uniform float _EnableExternalAlpha;
+			uniform fixed4 _TextureSampleAdd;
+			uniform float4 _ClipRect;
 			uniform sampler2D _MainTex;
-			uniform sampler2D _AlphaTex;
-			uniform float _ZSpace;
+			uniform int _Facing;
 			struct Gradient
 			{
 				int type;
@@ -126,45 +158,45 @@ Shader "ReticleShader"
 			v2f vert( appdata_t IN  )
 			{
 				v2f OUT;
-				UNITY_SETUP_INSTANCE_ID(IN);
-				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
+				UNITY_SETUP_INSTANCE_ID( IN );
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 				UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
-				OUT.ase_texcoord1 = IN.vertex;
+				OUT.worldPosition = IN.vertex;
 				
-				IN.vertex.xyz +=  float3(0,0,0) ; 
-				OUT.vertex = UnityObjectToClipPos(IN.vertex);
-				OUT.texcoord = IN.texcoord;
-				OUT.color = IN.color * _Color;
-				#ifdef PIXELSNAP_ON
-				OUT.vertex = UnityPixelSnap (OUT.vertex);
-				#endif
+				
+				OUT.worldPosition.xyz +=  float3( 0, 0, 0 ) ;
+				OUT.vertex = UnityObjectToClipPos(OUT.worldPosition);
 
+				OUT.texcoord = IN.texcoord;
+				
+				OUT.color = IN.color * _Color;
 				return OUT;
 			}
 
-			fixed4 SampleSpriteTexture (float2 uv)
-			{
-				fixed4 color = tex2D (_MainTex, uv);
-
-#if ETC1_EXTERNAL_ALPHA
-				// get the color from an external texture (usecase: Alpha support for ETC1 on android)
-				fixed4 alpha = tex2D (_AlphaTex, uv);
-				color.a = lerp (color.a, alpha.r, _EnableExternalAlpha);
-#endif //ETC1_EXTERNAL_ALPHA
-
-				return color;
-			}
-			
 			fixed4 frag(v2f IN  ) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID( IN );
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
-				Gradient gradient16 = NewGradient( 0, 2, 2, float4( 0, 0, 1, 0 ), float4( 1, 0, 0, 1 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
+				Gradient gradient16 = NewGradient( 1, 4, 2, float4( 0, 0, 1, 0 ), float4( 0, 0, 1, 0.3300069 ), float4( 1, 1, 1, 0.6599985 ), float4( 1, 0, 0, 1 ), 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
+				float temp_output_37_0 = ( 1.0 - IN.texcoord.xy.x );
+				float ifLocalVar36 = 0;
+				if( _Facing <= 0.0 )
+				ifLocalVar36 = temp_output_37_0;
+				else
+				ifLocalVar36 = IN.texcoord.xy.x;
 				
-				fixed4 c = SampleGradient( gradient16, (0.0 + (IN.ase_texcoord1.xyz.z - -_ZSpace) * (1.0 - 0.0) / (_ZSpace - -_ZSpace)) );
-				c.rgb *= c.a;
-				return c;
+				half4 color = SampleGradient( gradient16, ifLocalVar36 );
+				
+				#ifdef UNITY_UI_CLIP_RECT
+                color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
+                #endif
+				
+				#ifdef UNITY_UI_ALPHACLIP
+				clip (color.a - 0.001);
+				#endif
+
+				return color;
 			}
 		ENDCG
 		}
@@ -175,25 +207,21 @@ Shader "ReticleShader"
 }
 /*ASEBEGIN
 Version=18912
-2084;7;1543;1045;919.316;402.9868;1;True;False
-Node;AmplifyShaderEditor.RangedFloatNode;21;-644.316,305.0132;Inherit;False;Property;_ZSpace;ZSpace;0;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.PosVertexDataNode;14;-461.316,8.013184;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.NegateNode;23;-424.316,187.0132;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;24;-438.316,313.0132;Inherit;False;Constant;_Float2;Float 2;1;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;25;-432.316,391.0132;Inherit;False;Constant;_Float3;Float 3;1;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.GradientNode;16;-196.316,36.01318;Inherit;False;0;2;2;0,0,1,0;1,0,0,1;1,0;1,1;0;1;OBJECT;0
-Node;AmplifyShaderEditor.TFHCRemapNode;22;-198.316,119.0132;Inherit;False;5;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;3;FLOAT;0;False;4;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.VertexColorNode;7;-324.5,-134.5;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.GradientSampleNode;15;220.684,74.01318;Inherit;True;2;0;OBJECT;;False;1;FLOAT;0;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;13;366,-103;Float;False;True;-1;2;ASEMaterialInspector;0;7;ReticleShader;0f8ba0101102bb14ebf021ddadce9b49;True;SubShader 0 Pass 0;0;0;SubShader 0 Pass 0;2;False;True;3;1;False;-1;10;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;True;5;Queue=Transparent=Queue=0;IgnoreProjector=True;RenderType=Transparent=RenderType;PreviewType=Plane;CanUseSpriteAtlas=True;False;False;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;0;;0;0;Standard;0;0;1;True;False;;False;0
-WireConnection;23;0;21;0
-WireConnection;22;0;14;3
-WireConnection;22;1;23;0
-WireConnection;22;2;21;0
-WireConnection;22;3;24;0
-WireConnection;22;4;25;0
+1924;30;1543;1039;908.3159;330.9868;1;True;False
+Node;AmplifyShaderEditor.TexCoordVertexDataNode;40;-253.3159,-51.98679;Inherit;False;0;2;0;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.OneMinusNode;37;-271.3159,416.0132;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.IntNode;38;-414.3159,209.0132;Inherit;False;Property;_Facing;Facing;0;0;Create;True;0;0;0;False;0;False;0;0;False;0;1;INT;0
+Node;AmplifyShaderEditor.ConditionalIfNode;36;-79.31592,310.0132;Inherit;False;False;5;0;INT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;4;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.GradientNode;16;-148.316,-210.9868;Inherit;False;1;4;2;0,0,1,0;0,0,1,0.3300069;1,1,1,0.6599985;1,0,0,1;1,0;1,1;0;1;OBJECT;0
+Node;AmplifyShaderEditor.GradientSampleNode;15;82.68401,211.0132;Inherit;True;2;0;OBJECT;;False;1;FLOAT;0;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;27;481,25;Float;False;True;-1;2;ASEMaterialInspector;0;5;ReticleShader;5056123faa0c79b47ab6ad7e8bf059a4;True;Default;0;0;Default;2;False;True;2;5;False;-1;10;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;True;True;True;True;True;0;True;-9;False;False;False;False;False;False;False;True;True;0;True;-5;255;True;-8;255;True;-7;0;True;-4;0;True;-6;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;2;False;-1;True;0;True;-11;False;True;5;Queue=Transparent=Queue=0;IgnoreProjector=True;RenderType=Transparent=RenderType;PreviewType=Plane;CanUseSpriteAtlas=True;False;False;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;0;;0;0;Standard;0;0;1;True;False;;False;0
+WireConnection;37;0;40;1
+WireConnection;36;0;38;0
+WireConnection;36;2;40;1
+WireConnection;36;3;37;0
+WireConnection;36;4;37;0
 WireConnection;15;0;16;0
-WireConnection;15;1;22;0
-WireConnection;13;0;15;0
+WireConnection;15;1;36;0
+WireConnection;27;0;15;0
 ASEEND*/
-//CHKSM=CCC37691807B0AADBDE73926A2E65469B4D91000
+//CHKSM=6A8F8AF4F42F83BEE0955571570EA694D6DC8FE6
