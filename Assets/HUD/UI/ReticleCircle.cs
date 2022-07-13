@@ -26,7 +26,7 @@ namespace HUD.UI
         public Quaternion rotation;
         private readonly UIVertex[] _quad = new UIVertex[4];
         private readonly UIVertex[] _quad2 = new UIVertex[4];
-        private static readonly int Facing = Shader.PropertyToID("_Facing");
+        private static readonly int DotViewDirection = Shader.PropertyToID("_DotViewDirection");
 
 
         void Update()
@@ -35,7 +35,7 @@ namespace HUD.UI
             transform.rotation = rotate ? rotation : Quaternion.identity;
 
             var dot = Vector3.Dot(Vector3.forward, rotation * Vector3.forward);
-            materialForRendering.SetInteger(Facing, dot > 0 ? 1 : 0); 
+            materialForRendering.SetFloat(DotViewDirection, dot); 
         }
 
         protected override void OnRectTransformDimensionsChange()

@@ -159,6 +159,7 @@ Material:
     - _DisplacementMode: 0
     - _DistortionEnable: 0
     - _DistortionOnly: 1
+    - _DotViewDirection: -0.99002373
     - _DoubleSidedEnable: 1
     - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 1
