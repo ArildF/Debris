@@ -33,7 +33,7 @@ namespace HUD.UI
         {
             thickness = (int)Mathf.Clamp(thickness, 0, rectTransform.rect.width / 2);
             transform.rotation = rotate ? rotation : Quaternion.identity;
-            
+
             var dot = Vector3.Dot(Vector3.forward, rotation * Vector3.forward);
             materialForRendering.SetInteger(Facing, dot > 0 ? 1 : 0); 
         }
