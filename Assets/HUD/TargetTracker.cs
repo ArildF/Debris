@@ -70,19 +70,29 @@ namespace HUD
             
             var shipRotation = _playerViewInfo.ShipTransform.rotation;
             var rotation = Quaternion.Inverse(shipRotation) * Quaternion.LookRotation(relativeVelocity);
-            _reticleCircle.rotation = rotation;
+            _reticleCircle.rotation = _playerViewInfo.ViewRotation * rotation;
         }
 
         private Vector3 CalculateScreenEdgeIntersection()
         {
             var player = _playerViewInfo.ShipTransform;
-            var start = player.position + player.forward * 50;
+            var playerRotation = player.rotation;
+            var viewForward = (playerRotation * Quaternion.Inverse(_playerViewInfo.ViewRotation) * Vector3.forward).normalized;
+            var start = player.position + viewForward * 1;
 
             var direction = _targetInfo.Target.position - start;
-            var projectedDirection = Quaternion.Inverse(player.rotation) * Vector3.ProjectOnPlane(direction, _playerViewInfo.ShipTransform.forward);
+            var projectedDirection =  _playerViewInfo.ViewRotation  * Quaternion.Inverse(playerRotation) * Vector3.ProjectOnPlane(direction, viewForward);
+            
+            // Debug.DrawLine(player.position, start, Color.cyan);
+            // Debug.DrawRay(start, direction * 1000, Color.yellow);
 
             var height = _camera.pixelHeight;
             var width = _camera.pixelWidth;
+
+            // var midScreen = new Vector3(width / 2f, height / 2f, 0);
+            // var midScreenWS = _camera.ViewportToWorldPoint(midScreen);
+            // Debug.DrawRay(midScreenWS, projectedDirection * 1000, Color.red);
+            
             
             Span<Plane> planes = stackalloc Plane[4];
             planes[0] = new Plane(Vector3.right, new Vector3(0, 0, 0));

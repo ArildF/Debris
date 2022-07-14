@@ -45,18 +45,7 @@ namespace HUD
                         rotation
                         ) * shipVelocityRotation;
 
-                var viewRotation = _playerViewInfo.ViewDirection switch
-                {
-                    ViewDirection.Front => Quaternion.identity,
-                    ViewDirection.Back => Quaternion.AngleAxis(180, Vector3.up),
-                    ViewDirection.Left => Quaternion.AngleAxis(90, Vector3.up),
-                    ViewDirection.Right => Quaternion.AngleAxis(-90, Vector3.up),
-                    ViewDirection.Top => Quaternion.AngleAxis(90, Vector3.right),
-                    ViewDirection.Bottom => Quaternion.AngleAxis(-90, Vector3.right),
-                    _ => Quaternion.identity,
-                };
-
-                var finalRotation = viewRotation * velocityRotation ;
+                var finalRotation = _playerViewInfo.ViewRotation * velocityRotation ;
                 
                 _uiObject.targetContainer.rotation = finalRotation;
 
