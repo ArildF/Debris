@@ -33,11 +33,11 @@ namespace Player
         public float targetingSphereDiameter = 400;
         
         public Transform shipCamera;
-        private Rigidbody _rigidBody;
+        public Rigidbody rigidBody;
         private InputAction[] _actions;
         private HudInfo _hudInfo;
         private bool _currentlyBraking;
-        private ThrustInfo _thrustInfo;
+        public ThrustInfo thrustInfo;
         private Vector2 _dpadDirection;
         private PlayerViewInfo _playerViewInfo;
         private TargetInfo _targetInfo;
@@ -46,7 +46,7 @@ namespace Player
         public void Init(HudInfo hudInfo, ThrustInfo thrustInfo, PlayerViewInfo playerViewInfo, TargetInfo targetInfo)
         {
             _hudInfo = hudInfo;
-            _thrustInfo = thrustInfo;
+            this.thrustInfo = thrustInfo;
             _playerViewInfo = playerViewInfo;
             _targetInfo = targetInfo;
         }
@@ -55,7 +55,7 @@ namespace Player
         private void Start()
         {
             _playerViewInfo.ShipTransform = transform;
-            _rigidBody = GetComponent<Rigidbody>();
+            rigidBody = GetComponent<Rigidbody>();
 
             cameraControl.started += ctx => _dpadDirection = ctx.ReadValue<Vector2>();
 
@@ -110,7 +110,7 @@ namespace Player
                 ViewDirection.Bottom => forward,
                 _ => playerTransform.up,
             };
-            _hudInfo.AbsoluteVelocity = _rigidBody.velocity.magnitude;
+            _hudInfo.AbsoluteVelocity = rigidBody.velocity.magnitude;
         }
 
         private void OnEnable()
@@ -134,51 +134,43 @@ namespace Player
         // Update is called once per frame
         void FixedUpdate()
         {
-            _thrustInfo.CurrentDirectionalThrust = _thrustInfo.CurrentRotationalThrust = 0;
+            thrustInfo.CurrentDirectionalThrust = thrustInfo.CurrentRotationalThrust = 0;
             
             if (thrustAction.phase == InputActionPhase.Started)
             {
                 var input = thrustAction.ReadValue<float>();
-                var force = Abs(input) * _thrustCurve.Evaluate(input) * forwardForce;
-                _thrustInfo.CurrentDirectionalThrust = force;
-                print($"Input {input}, Forward Force {forwardForce}, force {force}");
-                _rigidBody.AddForce(transform.forward * force, ForceMode.Impulse); 
+                var force = Abs(input) * _thrustCurve.Evaluate(input);
+                _playerViewInfo.CurrentView.PrimaryThrust(this, force);
             }
             if (reverseThrustAction.phase == InputActionPhase.Started)
             {
                 var input = reverseThrustAction.ReadValue<float>();
-                var force = Abs(input) * _thrustCurve.Evaluate(input) * reverseForce;
-                _thrustInfo.CurrentDirectionalThrust = force;
-                print($"Input {input}, reverse Force {reverseForce}, force {force}");
-                _rigidBody.AddForce(transform.forward * -force, ForceMode.Impulse); 
+                var force = Abs(input) * _thrustCurve.Evaluate(input);
+                _playerViewInfo.CurrentView.PrimaryReverseThrust(this, force);
             }
 
             if (lateralRollAction.phase == InputActionPhase.Started)
             {
                 var roll = lateralRollAction.ReadValue<float>();
-                _thrustInfo.CurrentRotationalThrust = Abs(roll * lateralRollForce);
-                _rigidBody.AddRelativeTorque(0, 0, -roll * lateralRollForce);
+                _playerViewInfo.CurrentView.LateralRoll(this, roll);
             }
         
             if (medialRollAction.phase == InputActionPhase.Started)
             {
                 var roll = medialRollAction.ReadValue<float>();
-                _thrustInfo.CurrentRotationalThrust = Max(_thrustInfo.CurrentRotationalThrust, Abs(roll * medialRollForce));
-                _rigidBody.AddRelativeTorque(roll * medialRollForce, 0, 0);
+                _playerViewInfo.CurrentView.MedialRoll(this, roll);
             }
 
             if (lateralThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = lateralThrustAction.ReadValue<float>();
-                _thrustInfo.CurrentDirectionalThrust = Abs(thrust * lateralThrustForce);
-                _rigidBody.AddForce(transform.right * (thrust * lateralThrustForce), ForceMode.Impulse);
+                _playerViewInfo.CurrentView.LateralThrust(this, thrust);
             }
 
             if (verticalThrustAction.phase == InputActionPhase.Started)
             {
                 var thrust = verticalThrustAction.ReadValue<float>();
-                _thrustInfo.CurrentDirectionalThrust = Max(_thrustInfo.CurrentDirectionalThrust, Abs(thrust * verticalThrustForce));
-                _rigidBody.AddForce(transform.up * (thrust * verticalThrustForce), ForceMode.Impulse);
+                _playerViewInfo.CurrentView.VerticalThrust(this, thrust);
             }
             
 
@@ -212,7 +204,7 @@ namespace Player
             try
             {
                 var shipTransform = transform;
-                var velocityRotation = Quaternion.LookRotation(-_rigidBody.velocity, shipTransform.up);
+                var velocityRotation = Quaternion.LookRotation(-rigidBody.velocity, shipTransform.up);
                 while (brakeAction.phase == InputActionPhase.Started && 
                        Quaternion.Angle(shipTransform.rotation, velocityRotation) > float.Epsilon)
                 {
@@ -222,10 +214,10 @@ namespace Player
             
                 Debug.Log("Finished rotation phase of braking");
                 while (brakeAction.phase == InputActionPhase.Started &&
-                       _rigidBody.velocity.magnitude > 50)
+                       rigidBody.velocity.magnitude > 50)
                 {
-                    _thrustInfo.CurrentDirectionalThrust = forwardForce;
-                    _rigidBody.AddForce(transform.forward * forwardForce, ForceMode.Impulse);
+                    thrustInfo.CurrentDirectionalThrust = forwardForce;
+                    rigidBody.AddForce(transform.forward * forwardForce, ForceMode.Impulse);
                     yield return new WaitForFixedUpdate();
                 }
                 
